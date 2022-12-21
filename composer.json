@@ -1,0 +1,19 @@
+{
+    "name": "arfar-x/erepo",
+    "description": "Extended repository pattern for PHP/Laravel.",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Erepo\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Alireza Farhanian",
+            "email": "aariow01@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {}
+}
