@@ -4,7 +4,7 @@ namespace Erepo\Repositories;
 
 use Illuminate\Database\Eloquent\Model;
 
-class AbstractRepository implements BaseRepositoryInterface
+class AbstractRepository implements AbstractRepositoryInterface
 {
     /**
      * @param Model $model

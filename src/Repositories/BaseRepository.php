@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
-class CrudRepository extends AbstractRepository implements CrudRepositoryInterface
+class BaseRepository extends AbstractRepository implements BaseRepositoryInterface
 {
     /**
      * @param array $queries
@@ -66,7 +66,7 @@ class CrudRepository extends AbstractRepository implements CrudRepositoryInterfa
      */
     public function update(Model $model, array $parameters): Model
     {
-        $model->update($parameters);
+        $model->query()->update($parameters);
 
         return $model->refresh();
     }
@@ -77,7 +77,7 @@ class CrudRepository extends AbstractRepository implements CrudRepositoryInterfa
      */
     public function destroy(Model $model): bool
     {
-        return $model->delete();
+        return $model->query()->delete();
     }
 
     /**
@@ -89,7 +89,7 @@ class CrudRepository extends AbstractRepository implements CrudRepositoryInterfa
      */
     public function findBy(string $key, string $value): Model|null
     {
-        return $this->model->where($key, $value)->firstOrFail();
+        return $this->model->query()->where($key, $value)->firstOrFail();
     }
 
     /**
@@ -97,12 +97,12 @@ class CrudRepository extends AbstractRepository implements CrudRepositoryInterfa
      *
      * @param string $key
      * @param string|array|null $values
-     * @return Model
+     * @return Builder|null
      */
     public function findIn(string $key, string|array $values = null): Builder|null
     {
         $values = is_string($values) ? [$values] : $values;
 
-        return $this->model->whereIn($key, $values);
+        return $this->model->query()->whereIn($key, $values);
     }
 }

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
-interface CrudRepositoryInterface extends BaseRepositoryInterface
+interface BaseRepositoryInterface extends AbstractRepositoryInterface
 {
     /**
      * @param array $queries

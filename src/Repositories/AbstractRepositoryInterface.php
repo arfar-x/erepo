@@ -4,7 +4,7 @@ namespace Erepo\Repositories;
 
 use Illuminate\Database\Eloquent\Model;
 
-interface BaseRepositoryInterface
+interface AbstractRepositoryInterface
 {
     /**
      * Run the callable with given temporary model.
@@ -14,7 +14,7 @@ interface BaseRepositoryInterface
      * @param array ...$args
      * @return mixed
      */
-    public function runWith(Model $model, callable|string $callable, ...$args);
+    public function runWith(Model $model, callable|string $callable, ...$args): mixed;
 
     /**
      * @param Model $model
