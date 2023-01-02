@@ -1,6 +1,7 @@
 {
     "name": "arfar-x/erepo",
     "description": "Extended repository pattern for PHP/Laravel.",
+    "keywords": ["repository", "pattern", "php", "laravel"],
     "type": "project",
     "license": "MIT",
     "autoload": {
@@ -14,6 +15,9 @@
             "email": "aariow01@gmail.com"
         }
     ],
-    "minimum-stability": "stable",
-    "require": {}
+    "require": {
+        "php": "^8.1.2"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
