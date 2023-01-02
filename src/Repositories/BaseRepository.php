@@ -2,97 +2,107 @@
 
 namespace Erepo\Repositories;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
-class BaseRepository implements BaseRepositoryInterface
+class CrudRepository extends AbstractRepository implements CrudRepositoryInterface
 {
     /**
-     * @param Model $model
+     * @param array $queries
+     * @return LengthAwarePaginator|Collection
      */
-    public function __construct(protected Model $model)
+    public function list(array $queries = []): LengthAwarePaginator|Collection
     {
-        $this->prepare();
+        $models = $this->model->query();
+
+        $models = $this->applyFilters($models, $queries);
+
+        $models->orderBy($queries['sort_by'] ?? 'created_at', $queries['sort_direction'] ?? 'desc');
+        $models->when(isset($queries['active']), function ($models) use ($queries){
+            $models->where('status', $queries['active']);
+        });
+
+        if (isset($queries['paginate']) && !$queries['paginate'])
+            return $models->get();
+        else
+            return $models->paginate($queries['per_page'] ?? $this->model->getPerPage());
     }
 
     /**
-     * Initialize and boot necessary conditions.
-     *
-     * @return void
+     * @param Builder $models
+     * @param array $queries
+     * @return Builder
      */
-    protected function prepare(): void
+    protected function applyFilters(Builder $models, array $queries = []): Builder
     {
-        $this->boot();
-        $this->initTraits();
+        return $models;
     }
 
     /**
-     * Run traits' `init` methods to prepare the environment.
-     * Convention: init + [trait_name]()
-     * E.g. trait Encoder => initEncoder()
-     *
-     * @return void
+     * @param array $parameters
+     * @return Model
      */
-    protected function initTraits(): void
+    public function create(array $parameters): Model
     {
-        foreach (class_uses_recursive(static::class) as $trait) {
-            $method = 'init'.class_basename($trait);
-
-            if (method_exists($trait, $method)) {
-                call_user_func([$this, $method]);
-            }
-        }
-    }
-
-    /**
-     * Boot anything needed for the repository.
-     *
-     * @return void
-     */
-    protected function boot(): void
-    {
-        //
-    }
-
-    /**
-     * Run the callable with given temporary model.
-     *
-     * @param Model $model
-     * @param callable|string $callable
-     * @param array ...$args
-     * @return mixed
-     */
-    public function runWith(Model $model, callable|string $callable, ...$args): mixed
-    {
-        /**
-         * Here we store current model instance in a temporary variable to be untouched,
-         * and our secondary given model is used for callable, then previous model
-         * will be replaced.
-         */
-        $currentModel = $this->model;
-        $this->model = $model;
-
-        if (is_string($callable)) {
-            $result = call_user_func([$this, $callable], $model, $args);
-        }
-
-        elseif (is_callable($callable)) {
-            array_unshift($args, $model);
-            $result = tap($callable, $args);
-        }
-
-        $this->model = $currentModel;
-
-        return $result;
+        return $this->model->query()
+            ->create($parameters);
     }
 
     /**
      * @param Model $model
-     * @return static
+     * @return Model
      */
-    public function setModel(Model $model): static
+    public function show(Model $model): Model
     {
-        $this->model = $model;
+        return $model;
+    }
 
-        return $this;
+    /**
+     * @param Model $model
+     * @param array $parameters
+     * @return Model
+     */
+    public function update(Model $model, array $parameters): Model
+    {
+        $model->update($parameters);
+
+        return $model->refresh();
+    }
+
+    /**
+     * @param Model $model
+     * @return bool
+     */
+    public function destroy(Model $model): bool
+    {
+        return $model->delete();
+    }
+
+    /**
+     * Find an exact record by given key-value.
+     *
+     * @param string $key
+     * @param string $value
+     * @return Model|null
+     */
+    public function findBy(string $key, string $value): Model|null
+    {
+        return $this->model->where($key, $value)->firstOrFail();
+    }
+
+    /**
+     * Find record within the given range.
+     *
+     * @param string $key
+     * @param string|array|null $values
+     * @return Model
+     */
+    public function findIn(string $key, string|array $values = null): Builder|null
+    {
+        $values = is_string($values) ? [$values] : $values;
+
+        return $this->model->whereIn($key, $values);
     }
 }

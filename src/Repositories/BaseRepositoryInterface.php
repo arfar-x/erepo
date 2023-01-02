@@ -2,23 +2,59 @@
 
 namespace Erepo\Repositories;
 
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
-interface BaseRepositoryInterface
+interface CrudRepositoryInterface extends BaseRepositoryInterface
 {
     /**
-     * Run the callable with given temporary model.
-     *
-     * @param Model $model
-     * @param callable|string $callable
-     * @param array ...$args
-     * @return mixed
+     * @param array $queries
+     * @return LengthAwarePaginator|Collection
      */
-    public function runWith(Model $model, callable|string $callable, ...$args);
+    public function list(array $queries = []): LengthAwarePaginator|Collection;
+
+    /**
+     * @param array $parameters
+     * @return Model
+     */
+    public function create(array $parameters): Model;
 
     /**
      * @param Model $model
-     * @return static
+     * @return Model
      */
-    public function setModel(Model $model): static;
+    public function show(Model $model): Model;
+
+    /**
+     * @param Model $model
+     * @param array $parameters
+     * @return Model
+     */
+    public function update(Model $model, array $parameters): Model;
+
+    /**
+     * @param Model $model
+     * @return bool
+     */
+    public function destroy(Model $model): bool;
+
+    /**
+     * Find an exact record by given key-value.
+     *
+     * @param string $key
+     * @param string $value
+     * @return Model|null
+     */
+    public function findBy(string $key, string $value): Model|null;
+
+    /**
+     * Find record within the given range.
+     *
+     * @param string $key
+     * @param string|array|null $values
+     * @return Model
+     */
+    public function findIn(string $key, string|array $values = null): Builder|null;
 }
