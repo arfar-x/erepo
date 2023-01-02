@@ -19,10 +19,10 @@ class BaseRepository implements BaseRepositoryInterface
      *
      * @return void
      */
-    protected function prepare()
+    protected function prepare(): void
     {
-        $this->initTraits();
         $this->boot();
+        $this->initTraits();
     }
 
     /**
@@ -32,7 +32,7 @@ class BaseRepository implements BaseRepositoryInterface
      *
      * @return void
      */
-    protected function initTraits()
+    protected function initTraits(): void
     {
         foreach (class_uses_recursive(static::class) as $trait) {
             $method = 'init'.class_basename($trait);
@@ -48,7 +48,7 @@ class BaseRepository implements BaseRepositoryInterface
      *
      * @return void
      */
-    protected function boot()
+    protected function boot(): void
     {
         //
     }
@@ -61,7 +61,7 @@ class BaseRepository implements BaseRepositoryInterface
      * @param array ...$args
      * @return mixed
      */
-    public function runWith(Model $model, callable|string $callable, ...$args)
+    public function runWith(Model $model, callable|string $callable, ...$args): mixed
     {
         /**
          * Here we store current model instance in a temporary variable to be untouched,
@@ -70,11 +70,11 @@ class BaseRepository implements BaseRepositoryInterface
          */
         $currentModel = $this->model;
         $this->model = $model;
-        
+
         if (is_string($callable)) {
             $result = call_user_func([$this, $callable], $model, $args);
         }
-        
+
         elseif (is_callable($callable)) {
             array_unshift($args, $model);
             $result = tap($callable, $args);
